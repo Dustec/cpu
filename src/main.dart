@@ -1,4 +1,4 @@
-import 'src/cpu.dart';
+import 'cpu.dart';
 
 void main() {
   final CPU machine = CPU();
