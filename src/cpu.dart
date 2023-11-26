@@ -42,6 +42,7 @@ class CPU {
   int flag = 0;
 
   String run(List<String> program) {
+    print('===== Program init =====');
     for (final String instruction in program) {
       final DecodeInstructionResult decodedInstruction =
           decodeInstruction(instruction);
@@ -122,7 +123,7 @@ class CPU {
           throw UnsupportedInstructionException();
       }
     }
-    return '====================================================';
+    return '===== Program end =====';
   }
 
   // CPU Functions
@@ -132,7 +133,14 @@ class CPU {
     required String rTwo,
     required String rResult,
   }) {
-    registers[rResult] = registers[rOne]! + registers[rTwo]!;
+    final dynamic x = registers[rOne];
+    final dynamic y = registers[rTwo];
+    final dynamic result =
+        (double.tryParse(x) ?? 0.0) + (double.tryParse(y) ?? 0.0);
+    registers[rResult] = result;
+    print(
+      '${InstructionKey.add} ${rOne}: ${x} + ${rTwo}: ${y} = ${result} saved in ${rResult}',
+    );
   }
 
   void _sub({
@@ -140,7 +148,14 @@ class CPU {
     required String rTwo,
     required String rResult,
   }) {
-    registers[rResult] = registers[rOne]! - registers[rTwo]!;
+    final dynamic x = registers[rOne];
+    final dynamic y = registers[rTwo];
+    final dynamic result =
+        (double.tryParse(x) ?? 0.0) - (double.tryParse(y) ?? 0.0);
+    registers[rResult] = result;
+    print(
+      '${InstructionKey.sub} ${rOne}: ${x} - ${rTwo}: ${y} = ${result} saved in ${rResult}',
+    );
   }
 
   void _mul({
@@ -148,7 +163,14 @@ class CPU {
     required String rTwo,
     required String rResult,
   }) {
-    registers[rResult] = registers[rOne]! * registers[rTwo]!;
+    final dynamic x = registers[rOne];
+    final dynamic y = registers[rTwo];
+    final dynamic result =
+        (double.tryParse(x) ?? 0.0) * (double.tryParse(y) ?? 0.0);
+    registers[rResult] = result;
+    print(
+      '${InstructionKey.mul} ${rOne}: ${x} * ${rTwo}: ${y} = ${result} saved in ${rResult}',
+    );
   }
 
   void _div({
@@ -156,15 +178,32 @@ class CPU {
     required String rTwo,
     required String rResult,
   }) {
-    registers[rResult] = registers[rOne]! ~/ registers[rTwo]!;
+    final dynamic x = registers[rOne];
+    final dynamic y = registers[rTwo];
+    final dynamic result =
+        (double.tryParse(x) ?? 0.0) / (double.tryParse(y) ?? 0.0);
+    registers[rResult] = result;
+    print(
+      '${InstructionKey.div} ${rOne}: ${x} / ${rTwo}: ${y} = ${result} saved in ${rResult}',
+    );
   }
 
   void _inc({required String r}) {
-    registers[r] = registers[r]! + 1;
+    final dynamic x = registers[r];
+    final dynamic result = (double.tryParse(x) ?? 0.0) + 1;
+    registers[r] = result;
+    print(
+      '${InstructionKey.inc} ${r}: ${result}',
+    );
   }
 
   void _dec({required String r}) {
-    registers[r] = registers[r]! - 1;
+    final dynamic x = registers[r];
+    final dynamic result = (double.tryParse(x) ?? 0.0) - 1;
+    registers[r] = result;
+    print(
+      '${InstructionKey.dec} ${r}: ${result}',
+    );
   }
 
   void _cmp({
@@ -173,28 +212,37 @@ class CPU {
     required String rTwo,
     required String rResult,
   }) {
+    final dynamic x = registers[rOne];
+    final dynamic y = registers[rTwo];
+    dynamic result;
+
     switch (op) {
       case OperatorKey.lessThan:
-        registers[rResult] = registers[rOne]! < registers[rTwo]!;
+        result = x < y;
         break;
       case OperatorKey.greaterThan:
-        registers[rResult] = registers[rOne]! > registers[rTwo]!;
+        result = x > y;
         break;
       case OperatorKey.lessThanOrEqual:
-        registers[rResult] = registers[rOne]! <= registers[rTwo]!;
+        result = x <= y;
         break;
       case OperatorKey.greaterThanOrEqual:
-        registers[rResult] = registers[rOne]! >= registers[rTwo]!;
+        result = x >= y;
         break;
       case OperatorKey.equal:
-        registers[rResult] = registers[rOne]! == registers[rTwo]!;
+        result = x == y;
         break;
       case OperatorKey.notEqual:
-        registers[rResult] = registers[rOne]! != registers[rTwo]!;
+        result = x != y;
         break;
       default:
         throw UnsupportedOperatorException();
     }
+
+    registers[rResult] = result;
+    print(
+      '${InstructionKey.cmp} ${rOne}: ${x} ${op} ${rTwo}: ${y} = ${result} saved in ${rResult}',
+    );
   }
 
   void _const({
@@ -202,6 +250,9 @@ class CPU {
     required String rResult,
   }) {
     registers[rResult] = value;
+    print(
+      '${InstructionKey.constKey} ${value} saved in ${rResult}',
+    );
   }
 
   void _load({
@@ -209,7 +260,13 @@ class CPU {
     required String rDestination,
     required int offset,
   }) {
-    registers[rDestination] = memory[registers[rSource]! + offset];
+    final int? value = memory[registers[rSource]! + offset];
+
+    registers[rDestination] = value;
+    print(
+      '${InstructionKey.load} ${rSource} + ${offset} = $value saved in ${rDestination}',
+    );
+    print(memory);
   }
 
   void _store({
@@ -218,6 +275,9 @@ class CPU {
     required int offset,
   }) {
     memory[registers[rSource]! + offset] = registers[rDestination];
+    print(
+      '${InstructionKey.store} ${rSource} + ${offset} = ${registers[rDestination]} saved in ${rDestination}',
+    );
   }
 
   void _jmp({
@@ -225,9 +285,12 @@ class CPU {
     required int offset,
   }) {
     registers[RegisterKey.ip] = registers[rDestination]! + offset;
+    print(
+      '${InstructionKey.jmp} ${rDestination} + ${offset} = ${registers[RegisterKey.ip]}',
+    );
   }
 
   void _halt() {
-    print('Program finished');
+    print('${InstructionKey.halt}');
   }
 }
