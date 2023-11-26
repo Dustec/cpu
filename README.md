@@ -1,7 +1,5 @@
 # CPU Simulator
 
-Ejercicio: simulando CPU
-
 En el archivo 'cpu.dart' encontrarás el esqueleto para la clase CPU que simulará el funcionamiento de un CPU real. El funcionamiento del CPU es el siguiente:
 
 - Recibe un programa que se ejecutará en el CPU.
